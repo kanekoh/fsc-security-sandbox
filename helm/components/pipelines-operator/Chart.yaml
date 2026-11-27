@@ -1,0 +1,5 @@
+apiVersion: v2
+name: pipelines-operator
+description: Skeleton component for fsc-security-sandbox (pipelines-operator) — implement in next session
+type: application
+version: 0.1.0

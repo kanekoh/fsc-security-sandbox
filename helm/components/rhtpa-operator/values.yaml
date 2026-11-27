@@ -1,0 +1,9 @@
+rhtpaOperator:
+  enabled: true
+  name: rhtpa-operator
+  packageName: rhtpa-operator
+  namespace: openshift-operators
+  channel: stable
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic

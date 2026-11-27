@@ -1,0 +1,54 @@
+{{- if .Values.rhacsCentral.enabled }}
+# Central CR (Operator). Admin password is Operator-generated (not stored in Git).
+# Demo-oriented resource requests; use RHACS Installing defaults for production.
+apiVersion: platform.stackrox.io/v1alpha1
+kind: Central
+metadata:
+  name: {{ .Values.rhacsCentral.name }}
+  namespace: {{ .Values.rhacsCentral.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  central:
+    exposure:
+      route:
+        enabled: true
+    resources:
+      requests:
+        cpu: {{ .Values.rhacsCentral.central.cpuRequest | quote }}
+        memory: {{ .Values.rhacsCentral.central.memoryRequest | quote }}
+      limits:
+        cpu: {{ .Values.rhacsCentral.central.cpuLimit | quote }}
+        memory: {{ .Values.rhacsCentral.central.memoryLimit | quote }}
+    db:
+      resources:
+        requests:
+          cpu: {{ .Values.rhacsCentral.centralDB.cpuRequest | quote }}
+          memory: {{ .Values.rhacsCentral.centralDB.memoryRequest | quote }}
+        limits:
+          cpu: {{ .Values.rhacsCentral.centralDB.cpuLimit | quote }}
+          memory: {{ .Values.rhacsCentral.centralDB.memoryLimit | quote }}
+  scanner:
+    analyzer:
+      scaling:
+        autoScaling: {{ .Values.rhacsCentral.scanner.autoScaling }}
+        replicas: {{ .Values.rhacsCentral.scanner.replicas }}
+      resources:
+        requests:
+          cpu: {{ .Values.rhacsCentral.scanner.cpuRequest | quote }}
+          memory: {{ .Values.rhacsCentral.scanner.memoryRequest | quote }}
+        limits:
+          cpu: {{ .Values.rhacsCentral.scanner.cpuLimit | quote }}
+          memory: {{ .Values.rhacsCentral.scanner.memoryLimit | quote }}
+    db:
+      resources:
+        requests:
+          cpu: {{ .Values.rhacsCentral.scannerDB.cpuRequest | quote }}
+          memory: {{ .Values.rhacsCentral.scannerDB.memoryRequest | quote }}
+        limits:
+          cpu: {{ .Values.rhacsCentral.scannerDB.cpuLimit | quote }}
+          memory: {{ .Values.rhacsCentral.scannerDB.memoryLimit | quote }}
+{{- end }}

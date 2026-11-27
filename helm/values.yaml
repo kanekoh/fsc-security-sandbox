@@ -1,0 +1,154 @@
+# FSC Security Sandbox - App of Apps
+# See docs/architecture.md. Do not put secrets in this file.
+
+gitops:
+  # Use HTTPS for RHDP / Argo CD
+  repoUrl: "https://github.com/kanekoh/fsc-security-sandbox.git"
+  revision: "main"
+  basePath: "helm"
+  repoURL: ""
+  path: ""
+
+argocd:
+  namespace: openshift-gitops
+  project: default
+
+# full = ACS+TAS+TPA+RHDH | lite = subset (later)
+profile: full
+
+components:
+  # --- RHACS zero-touch: Operator → Central → CRS Job → SecuredCluster ---
+  rhacsOperator:
+    enabled: true
+    name: rhacs-operator
+    namespace: rhacs-operator
+    channel: stable
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    installPlanApproval: Automatic
+    syncWave: "0"
+
+  rhacsCentral:
+    enabled: true
+    name: stackrox-central-services
+    namespace: stackrox
+    syncWave: "1"
+
+  rhacsCrsJob:
+    enabled: true
+    namespace: stackrox
+    syncWave: "2"
+    # Job creates CRS Secrets in-cluster only (never in Git).
+    clusterName: fsc-security-sandbox
+
+  rhacsSecuredCluster:
+    enabled: true
+    name: stackrox-secured-cluster-services
+    namespace: stackrox
+    syncWave: "3"
+    clusterName: fsc-security-sandbox
+    centralEndpoint: "central.stackrox.svc:443"
+
+  # --- RHTAS ---
+  rhtasOperator:
+    enabled: true
+    name: rhtas-operator
+    packageName: rhtas-operator
+    namespace: openshift-operators
+    channel: stable
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    installPlanApproval: Automatic
+    syncWave: "10"
+
+  rhtasInstance:
+    enabled: false  # needs OIDC — enable after shared IdP
+    namespace: trusted-artifact-signer
+    syncWave: "11"
+
+  # --- RHTPA ---
+  rhtpaOperator:
+    enabled: true
+    name: rhtpa-operator
+    packageName: rhtpa-operator
+    namespace: openshift-operators
+    channel: stable
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    installPlanApproval: Automatic
+    syncWave: "20"
+
+  rhtpaInstance:
+    enabled: false  # needs OIDC + DB + object storage
+    namespace: trusted-profile-analyzer
+    syncWave: "21"
+
+  # --- RHDH ---
+  rhdhOperator:
+    enabled: true
+    name: rhdh
+    packageName: rhdh
+    namespace: rhdh-operator
+    channel: fast
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    installPlanApproval: Automatic
+    syncWave: "30"
+
+  rhdhInstance:
+    enabled: false  # needs auth config
+    namespace: rhdh
+    syncWave: "31"
+
+  # --- Pipelines + demos ---
+  pipelinesOperator:
+    enabled: true
+    name: openshift-pipelines-operator
+    packageName: openshift-pipelines-operator-rh
+    namespace: openshift-operators
+    channel: latest
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    installPlanApproval: Automatic
+    syncWave: "40"
+
+  sampleApps:
+    enabled: true
+    namespace: security-sandbox-demos
+    syncWave: "50"
+    vulnerableApp:
+      enabled: true
+    unsignedApp:
+      enabled: true
+    policyViolatingApp:
+      enabled: true
+
+# Injected by FSC — leave empty in Git
+deployer:
+  domain: ""
+  apiUrl: ""
+
+litemaas:
+  enabled: false
+  apiUrl: ""
+  apiKey: ""
+  model: ""
+
+guid: ""
+
+bases:
+  virt: false
+  rhoai: false
+  aap: false
+
+multi_user:
+  num_users: 0
+  users: []
+
+openshift:
+  adminUsername: ""
+  adminPassword: ""
+  consoleUrl: ""
+
+fieldContent:
+  deploymentType: "helm"

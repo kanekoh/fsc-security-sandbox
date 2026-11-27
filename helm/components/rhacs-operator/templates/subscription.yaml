@@ -1,0 +1,16 @@
+{{- if .Values.rhacsOperator.enabled }}
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.rhacsOperator.name }}
+  namespace: {{ .Values.rhacsOperator.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+spec:
+  channel: {{ .Values.rhacsOperator.channel | quote }}
+  name: {{ .Values.rhacsOperator.name | quote }}
+  source: {{ .Values.rhacsOperator.source | quote }}
+  sourceNamespace: {{ .Values.rhacsOperator.sourceNamespace | quote }}
+  installPlanApproval: {{ .Values.rhacsOperator.installPlanApproval }}
+{{- end }}

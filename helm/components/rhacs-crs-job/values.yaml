@@ -1,0 +1,9 @@
+rhacsCrsJob:
+  enabled: true
+  namespace: stackrox
+  clusterName: fsc-security-sandbox
+  # OpenShift CLI image (in-cluster). Job uses kubectl exec into Central for roxctl CRS.
+  image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+  # Internal wait loop (seconds between checks / max attempts)
+  waitSeconds: 15
+  maxAttempts: 80

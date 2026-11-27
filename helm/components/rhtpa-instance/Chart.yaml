@@ -1,0 +1,5 @@
+apiVersion: v2
+name: rhtpa-instance
+description: Skeleton — RHTPA instance (needs OIDC+DB+object storage secrets in-cluster)
+type: application
+version: 0.1.0

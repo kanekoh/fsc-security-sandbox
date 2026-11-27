@@ -1,0 +1,19 @@
+sampleApps:
+  enabled: true
+  namespace: security-sandbox-demos
+  vulnerableApp:
+    enabled: true
+    name: demo-vulnerable
+    # Intentionally old UBI for vulnerability demos (public image, no pull secret)
+    image: registry.access.redhat.com/ubi8/ubi:8.6
+  unsignedApp:
+    enabled: true
+    name: demo-unsigned
+    image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+  policyViolatingApp:
+    enabled: true
+    name: demo-policy-violate
+    image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+
+deployer:
+  domain: ""

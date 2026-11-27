@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rhdh-instance-pending
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    app.kubernetes.io/component: rhdh-instance
+    demo.redhat.com/application: "field-content"
+data:
+  status: "deferred — enable in values.yaml after OIDC/storage/auth prerequisites"
+  see: "docs/architecture.md and docs/roadmap.md"

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: rhacs-crs-job
+description: "Zero-touch CRS Job for RHACS Secured Cluster registration"
+type: application
+version: 0.1.0

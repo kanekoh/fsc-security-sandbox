@@ -1,0 +1,423 @@
+{{- /*
+  App of Apps — fsc-security-sandbox
+  RHACS order (zero-touch): Operator → Central → CRS Job → SecuredCluster
+  Component charts are skeletons until the implement session.
+*/ -}}
+{{- $repo := .Values.gitops.repoUrl -}}
+{{- $rev := .Values.gitops.revision -}}
+{{- $base := .Values.gitops.basePath -}}
+{{- $argoNs := .Values.argocd.namespace -}}
+{{- $project := .Values.argocd.project -}}
+
+{{- define "fsc.wave" -}}
+{{- $w := . -}}
+argocd.argoproj.io/sync-wave: {{ $w | quote }}
+{{- end -}}
+
+{{- if .Values.components.rhacsOperator.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhacs-operator
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhacsOperator.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhacs-operator
+    helm:
+      valuesObject:
+        rhacsOperator: {{ .Values.components.rhacsOperator | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhacsOperator.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.rhacsCentral.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhacs-central
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhacsCentral.syncWave | quote }}
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhacs-central
+    helm:
+      valuesObject:
+        rhacsCentral: {{ .Values.components.rhacsCentral | toYaml | nindent 10 }}
+        deployer:
+          domain: {{ .Values.deployer.domain | quote }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhacsCentral.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.rhacsCrsJob.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhacs-crs-job
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhacsCrsJob.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhacs-crs-job
+    helm:
+      valuesObject:
+        rhacsCrsJob: {{ .Values.components.rhacsCrsJob | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhacsCrsJob.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.rhacsSecuredCluster.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhacs-secured-cluster
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhacsSecuredCluster.syncWave | quote }}
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhacs-secured-cluster
+    helm:
+      valuesObject:
+        rhacsSecuredCluster: {{ .Values.components.rhacsSecuredCluster | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhacsSecuredCluster.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.rhtasOperator.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhtas-operator
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhtasOperator.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhtas-operator
+    helm:
+      valuesObject:
+        rhtasOperator: {{ .Values.components.rhtasOperator | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhtasOperator.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.rhtasInstance.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhtas-instance
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhtasInstance.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhtas-instance
+    helm:
+      valuesObject:
+        rhtasInstance: {{ .Values.components.rhtasInstance | toYaml | nindent 10 }}
+        deployer:
+          domain: {{ .Values.deployer.domain | quote }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhtasInstance.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.rhtpaOperator.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhtpa-operator
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhtpaOperator.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhtpa-operator
+    helm:
+      valuesObject:
+        rhtpaOperator: {{ .Values.components.rhtpaOperator | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhtpaOperator.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.rhtpaInstance.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhtpa-instance
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhtpaInstance.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhtpa-instance
+    helm:
+      valuesObject:
+        rhtpaInstance: {{ .Values.components.rhtpaInstance | toYaml | nindent 10 }}
+        deployer:
+          domain: {{ .Values.deployer.domain | quote }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhtpaInstance.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.rhdhOperator.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhdh-operator
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhdhOperator.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhdh-operator
+    helm:
+      valuesObject:
+        rhdhOperator: {{ .Values.components.rhdhOperator | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhdhOperator.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.rhdhInstance.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-rhdh-instance
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.rhdhInstance.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/rhdh-instance
+    helm:
+      valuesObject:
+        rhdhInstance: {{ .Values.components.rhdhInstance | toYaml | nindent 10 }}
+        deployer:
+          domain: {{ .Values.deployer.domain | quote }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.rhdhInstance.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.pipelinesOperator.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-pipelines-operator
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.pipelinesOperator.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/pipelines-operator
+    helm:
+      valuesObject:
+        pipelinesOperator: {{ .Values.components.pipelinesOperator | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.pipelinesOperator.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.sampleApps.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-sample-apps
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.sampleApps.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/sample-apps
+    helm:
+      valuesObject:
+        sampleApps: {{ .Values.components.sampleApps | toYaml | nindent 10 }}
+        deployer:
+          domain: {{ .Values.deployer.domain | quote }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.sampleApps.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}

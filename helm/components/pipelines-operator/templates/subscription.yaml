@@ -1,0 +1,16 @@
+{{- if .Values.pipelinesOperator.enabled }}
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.pipelinesOperator.name }}
+  namespace: {{ .Values.pipelinesOperator.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+spec:
+  channel: {{ .Values.pipelinesOperator.channel | quote }}
+  name: {{ .Values.pipelinesOperator.packageName | quote }}
+  source: {{ .Values.pipelinesOperator.source | quote }}
+  sourceNamespace: {{ .Values.pipelinesOperator.sourceNamespace | quote }}
+  installPlanApproval: {{ .Values.pipelinesOperator.installPlanApproval }}
+{{- end }}

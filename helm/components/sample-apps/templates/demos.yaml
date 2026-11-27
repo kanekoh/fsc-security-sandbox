@@ -1,0 +1,110 @@
+{{- if .Values.sampleApps.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.sampleApps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+---
+{{- if .Values.sampleApps.vulnerableApp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.sampleApps.vulnerableApp.name }}
+  namespace: {{ .Values.sampleApps.namespace }}
+  labels:
+    app: {{ .Values.sampleApps.vulnerableApp.name }}
+    demo.redhat.com/application: "field-content"
+    fsc.security/demo: vulnerable
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.sampleApps.vulnerableApp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.sampleApps.vulnerableApp.name }}
+    spec:
+      containers:
+        - name: app
+          image: {{ .Values.sampleApps.vulnerableApp.image | quote }}
+          command: ["sleep", "infinity"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+{{- end }}
+---
+{{- if .Values.sampleApps.unsignedApp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.sampleApps.unsignedApp.name }}
+  namespace: {{ .Values.sampleApps.namespace }}
+  labels:
+    app: {{ .Values.sampleApps.unsignedApp.name }}
+    demo.redhat.com/application: "field-content"
+    fsc.security/demo: unsigned
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.sampleApps.unsignedApp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.sampleApps.unsignedApp.name }}
+    spec:
+      containers:
+        - name: app
+          image: {{ .Values.sampleApps.unsignedApp.image | quote }}
+          command: ["sleep", "infinity"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+{{- end }}
+---
+{{- if .Values.sampleApps.policyViolatingApp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.sampleApps.policyViolatingApp.name }}
+  namespace: {{ .Values.sampleApps.namespace }}
+  labels:
+    app: {{ .Values.sampleApps.policyViolatingApp.name }}
+    demo.redhat.com/application: "field-content"
+    fsc.security/demo: policy-violate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.sampleApps.policyViolatingApp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.sampleApps.policyViolatingApp.name }}
+    spec:
+      containers:
+        - name: app
+          image: {{ .Values.sampleApps.policyViolatingApp.image | quote }}
+          command: ["sleep", "infinity"]
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+{{- end }}
+{{- end }}

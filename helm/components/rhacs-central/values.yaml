@@ -1,0 +1,32 @@
+rhacsCentral:
+  enabled: true
+  name: stackrox-central-services
+  namespace: stackrox
+  # Demo profile: schedulable on RHDP Shared multinode.
+  # Production: follow RHACS Installing defaults (Central ~1.5CPU/4Gi, DB ~4CPU/8Gi, PVC 100Gi).
+  central:
+    cpuRequest: "500m"
+    memoryRequest: "2Gi"
+    cpuLimit: "2"
+    memoryLimit: "4Gi"
+  centralDB:
+    cpuRequest: "500m"
+    memoryRequest: "2Gi"
+    cpuLimit: "2"
+    memoryLimit: "4Gi"
+    pvcSize: "100Gi"
+  scanner:
+    replicas: 1
+    autoScaling: Disabled
+    cpuRequest: "500m"
+    memoryRequest: "1500Mi"
+    cpuLimit: "2"
+    memoryLimit: "2500Mi"
+  scannerDB:
+    cpuRequest: "400m"
+    memoryRequest: "1Gi"
+    cpuLimit: "1"
+    memoryLimit: "2500Mi"
+
+deployer:
+  domain: ""

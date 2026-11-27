@@ -1,0 +1,21 @@
+{{- if .Values.rhacsSecuredCluster.enabled }}
+# Requires CRS/init-bundle Secrets in the same namespace (applied by rhacs-crs-job).
+# Official: install SecuredCluster in the same namespace as Central when co-located.
+apiVersion: platform.stackrox.io/v1alpha1
+kind: SecuredCluster
+metadata:
+  name: {{ .Values.rhacsSecuredCluster.name }}
+  namespace: {{ .Values.rhacsSecuredCluster.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  clusterName: {{ .Values.rhacsSecuredCluster.clusterName | quote }}
+  centralEndpoint: {{ .Values.rhacsSecuredCluster.centralEndpoint | quote }}
+  admissionControl:
+    listenOnCreates: true
+    listenOnUpdates: true
+    listenOnEvents: true
+{{- end }}

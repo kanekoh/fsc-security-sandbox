@@ -1,0 +1,9 @@
+rhtasOperator:
+  enabled: true
+  name: rhtas-operator
+  packageName: rhtas-operator
+  namespace: openshift-operators
+  channel: stable
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic

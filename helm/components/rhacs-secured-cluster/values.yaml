@@ -1,0 +1,7 @@
+rhacsSecuredCluster:
+  enabled: true
+  name: stackrox-secured-cluster-services
+  namespace: stackrox
+  clusterName: fsc-security-sandbox
+  # Same-cluster default (official / KCS)
+  centralEndpoint: "central.stackrox.svc:443"

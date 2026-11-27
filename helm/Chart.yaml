@@ -1,0 +1,6 @@
+apiVersion: v2
+name: fsc-security-sandbox
+description: FSC sandbox for RHACS + RHTAS (+ Pipelines) — App of Apps
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

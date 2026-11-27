@@ -1,0 +1,10 @@
+pipelinesOperator:
+  enabled: true
+  name: openshift-pipelines-operator
+  # Official package name may be openshift-pipelines-operator-rh on some catalogs
+  packageName: openshift-pipelines-operator-rh
+  namespace: openshift-operators
+  channel: latest
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic

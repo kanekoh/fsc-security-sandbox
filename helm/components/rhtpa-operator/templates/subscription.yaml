@@ -1,0 +1,16 @@
+{{- if .Values.rhtpaOperator.enabled }}
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.rhtpaOperator.name }}
+  namespace: {{ .Values.rhtpaOperator.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+spec:
+  channel: {{ .Values.rhtpaOperator.channel | quote }}
+  name: {{ .Values.rhtpaOperator.packageName | quote }}
+  source: {{ .Values.rhtpaOperator.source | quote }}
+  sourceNamespace: {{ .Values.rhtpaOperator.sourceNamespace | quote }}
+  installPlanApproval: {{ .Values.rhtpaOperator.installPlanApproval }}
+{{- end }}
