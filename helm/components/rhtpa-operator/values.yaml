@@ -2,8 +2,10 @@ rhtpaOperator:
   enabled: true
   name: rhtpa-operator
   packageName: rhtpa-operator
-  namespace: openshift-operators
-  channel: stable
+  # Official RHTPA 3.x channel is stable-v3 (not "stable").
+  # Docs: Administration Guide — upgrade / Operator install (stable-v3 for 3.0+)
+  namespace: trusted-profile-analyzer
+  channel: stable-v3
   source: redhat-operators
   sourceNamespace: openshift-marketplace
   installPlanApproval: Automatic

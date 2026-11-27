@@ -71,8 +71,9 @@ components:
     enabled: true
     name: rhtpa-operator
     packageName: rhtpa-operator
-    namespace: openshift-operators
-    channel: stable
+    # RHTPA 3.x uses channel stable-v3 (official). Namespace-scoped install.
+    namespace: trusted-profile-analyzer
+    channel: stable-v3
     source: redhat-operators
     sourceNamespace: openshift-marketplace
     installPlanApproval: Automatic

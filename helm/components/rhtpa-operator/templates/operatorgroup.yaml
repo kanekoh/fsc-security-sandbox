@@ -1,0 +1,14 @@
+{{- if .Values.rhtpaOperator.enabled }}
+# RHTPA Operator is typically installed into a dedicated namespace (OperatorHub UI).
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ .Values.rhtpaOperator.name }}
+  namespace: {{ .Values.rhtpaOperator.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+spec:
+  targetNamespaces:
+    - {{ .Values.rhtpaOperator.namespace }}
+{{- end }}
