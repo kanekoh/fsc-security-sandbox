@@ -6,7 +6,7 @@ No Showroom. Use the OpenShift console and product UIs.
 2. **RHACS** — use the **reencrypt** Central Route (OpenShift cert) for browser login; sample workloads in `security-sandbox-demos`  
 3. **Pipelines** — run `sample-sign-verify` in `security-sandbox-pipelines` (unsigned baseline + key-based sign/verify)  
 4. **RHTAS** — when Securesign + OIDC are enabled (replace key-based step with Fulcio keyless)  
-5. **RHTPA** — when `createCR` is enabled after OIDC (deps may already be running)  
+5. **RHTPA** — CNPG + MCG ObjectBucketClaim deps first; enable `createCR` after OIDC (set `mcg.endpoint` from `rhtpa-storage-endpoint`)  
 6. **RHDH** — when the instance is enabled (portal / catalog)  
 
 ```bash

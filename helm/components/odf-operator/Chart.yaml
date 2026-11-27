@@ -1,0 +1,6 @@
+apiVersion: v2
+name: odf-operator
+description: Red Hat OpenShift Data Foundation Operator (for MCG standalone)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

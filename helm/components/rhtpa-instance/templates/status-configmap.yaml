@@ -11,13 +11,16 @@ metadata:
 data:
   deps: {{ .Values.rhtpaInstance.deps.enabled | quote }}
   createCR: {{ .Values.rhtpaInstance.createCR | quote }}
+  storage: "ODF Multicloud Object Gateway (standalone) via ObjectBucketClaim"
+  database: "CloudNativePG Cluster"
   status: |
     {{- if .Values.rhtpaInstance.createCR }}
-    TrustedProfileAnalyzer CR enabled — requires OIDC + storage + DB Secrets.
+    TrustedProfileAnalyzer CR enabled — requires OIDC clients + bridged Secrets.
     {{- else if .Values.rhtpaInstance.deps.enabled }}
-    Dependencies (Postgres + MinIO) deploying. OIDC is still required before createCR=true.
-    Official: https://docs.redhat.com/en/documentation/red_hat_trusted_profile_analyzer/3.1/html/deployment_guide/installing-trusted-profile-analyzer-using-the-operator-lifecycle-manager_deploy
+    CNPG + OBC deploying. Bridge Job maps secrets for RHTPA. OIDC still required before createCR=true.
+    Official RHTPA: Deployment Guide (Red Hat services / Operator).
+    Official ODF: Deploy standalone Multicloud Object Gateway.
     {{- else }}
-    Deferred — enable deps / createCR in values after OIDC is ready.
+    Deferred.
     {{- end }}
 {{- end }}

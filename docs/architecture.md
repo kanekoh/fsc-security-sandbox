@@ -45,12 +45,16 @@ Order is enforced with Argo CD sync-waves. CRS material stays in cluster Secrets
 | Component | Notes |
 |---|---|
 | RHTAS instance | Requires an OIDC provider (see product docs) |
-| RHTPA deps | In-cluster Postgres + MinIO Secrets via bootstrap Job (`createCR` still off until OIDC) |
-| RHTPA CR | Official Operator path needs OIDC + storage + DB (Deployment Guide 3.1) |
+| ODF MCG standalone | S3 API without Ceph (`StorageCluster` `multiCloudGateway.reconcileStrategy: standalone`) |
+| CloudNativePG | PostgreSQL for RHTPA (OperatorHub; community package by default) |
+| RHTPA deps | CNPG Cluster + ObjectBucketClaim + secret bridge Job (`createCR` off until OIDC) |
+| RHTPA CR | Official Operator path needs OIDC + storage + DB (Deployment Guide 3.1 / RH services) |
 | RHDH instance | Requires authentication configuration |
 | Sample Pipelines | `security-sandbox-pipelines`: unsigned check + key-based sign/verify shape |
 
 Operators may install before OIDC exists. RHACS Central keeps a **passthrough** Route for Sensor and adds a **reencrypt** Route for the UI (OpenShift router certificate). Edge termination is not supported for Central (KCS 7019861).
+
+Do **not** ship MinIO in this repo (AIStor Free redistribution / OSS EOL concerns).
 
 ## Layout
 
@@ -64,10 +68,13 @@ helm/                         # App of Apps (GitOps Path)
     ├── rhacs-crs-job|
     ├── rhacs-secured-cluster|
     ├── rhtas-operator| / rhtas-instance (off)
-    ├── rhtpa-operator| / rhtpa-instance (off)
+    ├── odf-operator| / odf-mcg (MCG standalone)
+    ├── cnpg-operator|
+    ├── rhtpa-operator| / rhtpa-instance (CNPG+OBC; CR off)
     ├── rhdh-operator| / rhdh-instance (off)
     ├── pipelines-operator|
-    └── sample-apps|
+    ├── sample-apps|
+    └── sample-pipelines|
 ```
 
 ## References

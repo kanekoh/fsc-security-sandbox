@@ -1,0 +1,17 @@
+{{- if .Values.cnpgOperator.enabled }}
+# Cluster-wide install into openshift-operators (existing OperatorGroup).
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.cnpgOperator.name }}
+  namespace: {{ .Values.cnpgOperator.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+spec:
+  channel: {{ .Values.cnpgOperator.channel | quote }}
+  name: {{ .Values.cnpgOperator.packageName | quote }}
+  source: {{ .Values.cnpgOperator.source | quote }}
+  sourceNamespace: {{ .Values.cnpgOperator.sourceNamespace | quote }}
+  installPlanApproval: {{ .Values.cnpgOperator.installPlanApproval }}
+{{- end }}

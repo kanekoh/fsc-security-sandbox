@@ -1,0 +1,10 @@
+{{- if .Values.odfOperator.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.odfOperator.namespace }}
+  labels:
+    openshift.io/cluster-monitoring: "true"
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+{{- end }}

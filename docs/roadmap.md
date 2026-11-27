@@ -7,13 +7,13 @@
 - Operator Subscriptions for RHTAS, RHTPA, RHDH, OpenShift Pipelines
 - Sample Deployments for ACS demos
 - Sample Pipelines (`sample-sign-verify`: unsigned check + key-based sign/verify)
-- RHTPA in-cluster deps (Postgres + MinIO + secret bootstrap); CR gated on OIDC
+- RHTPA deps via **ODF MCG standalone + CloudNativePG** (MinIO removed); CR gated on OIDC
 
 ## Planned
 
 - Shared OIDC (for example Red Hat build of Keycloak) suitable for demos
 - RHTAS Securesign instance (after OIDC)
-- RHTPA `createCR: true` once OIDC clients exist
+- RHTPA `createCR: true` once OIDC clients exist (set `mcg.endpoint` from bridge ConfigMap)
 - RHDH instance and optional product plugins
 - Optional lighter profile without RHACS
 - Publish measured provision times after a full RHDP order

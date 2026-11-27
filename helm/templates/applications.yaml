@@ -218,6 +218,106 @@ spec:
       - CreateNamespace=true
 {{- end }}
 
+{{- if .Values.components.odfOperator.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-odf-operator
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.odfOperator.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/odf-operator
+    helm:
+      valuesObject:
+        odfOperator: {{ .Values.components.odfOperator | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.odfOperator.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.odfMcg.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-odf-mcg
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.odfMcg.syncWave | quote }}
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/odf-mcg
+    helm:
+      valuesObject:
+        odfMcg: {{ .Values.components.odfMcg | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.odfMcg.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
+{{- if .Values.components.cnpgOperator.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-cnpg-operator
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.cnpgOperator.syncWave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/cnpg-operator
+    helm:
+      valuesObject:
+        cnpgOperator: {{ .Values.components.cnpgOperator | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.cnpgOperator.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
+
 {{- if .Values.components.rhtpaOperator.enabled }}
 ---
 apiVersion: argoproj.io/v1alpha1

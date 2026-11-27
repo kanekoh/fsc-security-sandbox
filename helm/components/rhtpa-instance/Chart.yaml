@@ -1,6 +1,6 @@
 apiVersion: v2
 name: rhtpa-instance
-description: RHTPA dependencies (Postgres/MinIO) and optional TrustedProfileAnalyzer CR
+description: RHTPA dependencies (CNPG + ODF MCG OBC) and optional TrustedProfileAnalyzer CR
 type: application
 version: 0.1.0
 appVersion: "0.1.0"

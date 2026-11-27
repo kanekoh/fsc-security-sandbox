@@ -1,0 +1,16 @@
+{{- if .Values.odfOperator.enabled }}
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.odfOperator.name }}
+  namespace: {{ .Values.odfOperator.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+spec:
+  channel: {{ .Values.odfOperator.channel | quote }}
+  name: {{ .Values.odfOperator.packageName | quote }}
+  source: {{ .Values.odfOperator.source | quote }}
+  sourceNamespace: {{ .Values.odfOperator.sourceNamespace | quote }}
+  installPlanApproval: {{ .Values.odfOperator.installPlanApproval }}
+{{- end }}

@@ -1,0 +1,21 @@
+{{- if .Values.odfMcg.enabled }}
+# Official: Deploy standalone Multicloud Object Gateway (no CephCluster).
+# GitOps pattern: multiCloudGateway.reconcileStrategy: standalone
+# https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation/
+apiVersion: ocs.openshift.io/v1
+kind: StorageCluster
+metadata:
+  name: {{ .Values.odfMcg.name }}
+  namespace: {{ .Values.odfMcg.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  multiCloudGateway:
+    reconcileStrategy: standalone
+    {{- if .Values.odfMcg.dbStorageClassName }}
+    dbStorageClassName: {{ .Values.odfMcg.dbStorageClassName | quote }}
+    {{- end }}
+{{- end }}

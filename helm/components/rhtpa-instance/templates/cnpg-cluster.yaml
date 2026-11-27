@@ -1,0 +1,37 @@
+{{- if and .Values.rhtpaInstance.enabled .Values.rhtpaInstance.deps.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ .Values.rhtpaInstance.cnpg.clusterName }}
+  namespace: {{ .Values.rhtpaInstance.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    app.kubernetes.io/component: rhtpa-postgres
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  instances: {{ .Values.rhtpaInstance.cnpg.instances }}
+  primaryUpdateStrategy: unsupervised
+  bootstrap:
+    initdb:
+      database: {{ .Values.rhtpaInstance.cnpg.database | quote }}
+      owner: {{ .Values.rhtpaInstance.cnpg.owner | quote }}
+  storage:
+    size: {{ .Values.rhtpaInstance.cnpg.storageSize | quote }}
+    {{- if .Values.rhtpaInstance.cnpg.storageClass }}
+    storageClass: {{ .Values.rhtpaInstance.cnpg.storageClass | quote }}
+    {{- end }}
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+  postgresql:
+    parameters:
+      max_connections: "200"
+      shared_buffers: "256MB"
+{{- end }}

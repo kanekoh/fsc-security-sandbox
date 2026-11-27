@@ -1,0 +1,7 @@
+odfMcg:
+  enabled: true
+  name: ocs-storagecluster
+  namespace: openshift-storage
+  # StorageClass for NooBaa DB PVC (and pv-pool backing when not on AWS/Azure/GCP cloud buckets).
+  # RHDP AWS typically has gp3-csi. Leave empty to omit and let the Operator default.
+  dbStorageClassName: gp3-csi

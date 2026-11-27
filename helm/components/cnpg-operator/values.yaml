@@ -1,0 +1,10 @@
+cnpgOperator:
+  enabled: true
+  name: cloudnative-pg
+  packageName: cloudnative-pg
+  namespace: openshift-operators
+  channel: stable
+  # Community OperatorHub package (workspace RHCL guide). Prefer certified/EDB if available on the cluster.
+  source: community-operators
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
