@@ -1,0 +1,9 @@
+{{- if .Values.samplePipelines.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.samplePipelines.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+{{- end }}

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: sample-pipelines
+description: Demo Pipelines for unsigned verify and key-based sign/verify (RHTAS keyless later)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

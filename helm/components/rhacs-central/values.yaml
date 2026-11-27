@@ -2,6 +2,9 @@ rhacsCentral:
   enabled: true
   name: stackrox-central-services
   namespace: stackrox
+  route:
+    # UI via OpenShift router certificate (reencrypt). Sensor stays on passthrough.
+    reencryptEnabled: true
   # Demo profile: schedulable on RHDP Shared multinode.
   # Production: follow RHACS Installing defaults (Central ~1.5CPU/4Gi, DB ~4CPU/8Gi, PVC 100Gi).
   central:

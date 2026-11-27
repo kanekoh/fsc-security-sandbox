@@ -1,0 +1,92 @@
+{{- if and .Values.rhtpaInstance.enabled .Values.rhtpaInstance.deps.enabled }}
+# Passwords are injected by bootstrap Job into Secrets (not in Git).
+# StatefulSet env references those Secrets after the Job creates them.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rhtpa-postgresql-data
+  namespace: {{ .Values.rhtpaInstance.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    app.kubernetes.io/component: rhtpa-postgres
+spec:
+  accessModes: ["ReadWriteOnce"]
+  {{- if .Values.rhtpaInstance.postgres.storageClass }}
+  storageClassName: {{ .Values.rhtpaInstance.postgres.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.rhtpaInstance.postgres.pvcSize | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rhtpa-postgresql
+  namespace: {{ .Values.rhtpaInstance.namespace }}
+  labels:
+    app: rhtpa-postgresql
+    app.kubernetes.io/part-of: fsc-security-sandbox
+spec:
+  selector:
+    app: rhtpa-postgresql
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rhtpa-postgresql
+  namespace: {{ .Values.rhtpaInstance.namespace }}
+  labels:
+    app: rhtpa-postgresql
+    app.kubernetes.io/part-of: fsc-security-sandbox
+  annotations:
+    # Bootstrap Job must create secrets first (same wave / hook).
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  serviceName: rhtpa-postgresql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rhtpa-postgresql
+  template:
+    metadata:
+      labels:
+        app: rhtpa-postgresql
+    spec:
+      containers:
+        - name: postgresql
+          image: {{ .Values.rhtpaInstance.postgres.image | quote }}
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRESQL_USER
+              value: tpauser
+            - name: POSTGRESQL_DATABASE
+              value: tpadb
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-credentials
+                  key: db.password
+            - name: POSTGRESQL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-admin-credentials
+                  key: db.password
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/pgsql/data
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rhtpa-postgresql-data
+{{- end }}

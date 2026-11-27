@@ -1,0 +1,14 @@
+samplePipelines:
+  enabled: true
+  namespace: security-sandbox-pipelines
+  # Public images (no pull secret). Prefer RHTAS cosign from console downloads for product demos.
+  cosignImage: ghcr.io/sigstore/cosign/cosign:v2.4.3
+  skopeoImage: quay.io/skopeo/stable:v1.17.0
+  # Image used for the "expect unsigned" check (matches sample-apps unsigned demo).
+  unsignedImage: registry.access.redhat.com/ubi9/ubi-minimal:latest
+  # Ephemeral registry for key-based sign/verify demo (no credentials).
+  scratchImageRepo: ttl.sh/fsc-security-sandbox
+  scratchImageTag: 1h
+
+deployer:
+  domain: ""

@@ -1,0 +1,109 @@
+{{- if and .Values.rhtpaInstance.enabled .Values.rhtpaInstance.createCR }}
+{{- $ns := .Values.rhtpaInstance.namespace -}}
+{{- $domain := .Values.deployer.domain | default "" -}}
+{{- $appDomain := printf "-%s.%s" $ns $domain -}}
+# Requires: OIDC issuer/clients filled + Secrets from bootstrap Job.
+# Official Operator install pastes Helm AWS/RH-services values under spec.
+apiVersion: rhtpa.io/v1
+kind: TrustedProfileAnalyzer
+metadata:
+  name: {{ .Values.rhtpaInstance.name }}
+  namespace: {{ $ns }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  appDomain: {{ $appDomain | quote }}
+  ingress:
+    className: openshift-default
+    additionalAnnotations:
+      haproxy.router.openshift.io/timeout: "5m"
+  storage:
+    type: s3
+    # MinIO path-style endpoint (demo). Replace with real S3/ODF for production.
+    region: {{ printf "http://rhtpa-minio.%s.svc:9000" $ns | quote }}
+    bucket: {{ .Values.rhtpaInstance.minio.bucket | quote }}
+    accessKey:
+      valueFrom:
+        secretKeyRef:
+          name: storage-credentials
+          key: aws_access_key_id
+    secretKey:
+      valueFrom:
+        secretKeyRef:
+          name: storage-credentials
+          key: aws_secret_access_key
+  database:
+    host:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-credentials
+          key: db.host
+    port:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-credentials
+          key: db.port
+    name:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-credentials
+          key: db.name
+    username:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-credentials
+          key: db.user
+    password:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-credentials
+          key: db.password
+  createDatabase:
+    name:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-admin-credentials
+          key: db.name
+    username:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-admin-credentials
+          key: db.user
+    password:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-admin-credentials
+          key: db.password
+  migrateDatabase:
+    username:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-admin-credentials
+          key: db.user
+    password:
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-admin-credentials
+          key: db.password
+  modules:
+    createDatabase:
+      enabled: true
+    migrateDatabase:
+      enabled: true
+  oidc:
+    issuerUrl: {{ required "rhtpaInstance.oidc.issuerUrl required when createCR=true" .Values.rhtpaInstance.oidc.issuerUrl | quote }}
+    clients:
+      frontend:
+        clientId: {{ required "rhtpaInstance.oidc.frontendClientId required when createCR=true" .Values.rhtpaInstance.oidc.frontendClientId | quote }}
+      cli:
+        clientId: {{ required "rhtpaInstance.oidc.cliClientId required when createCR=true" .Values.rhtpaInstance.oidc.cliClientId | quote }}
+        clientSecret:
+          valueFrom:
+            secretKeyRef:
+              name: oidc-cli
+              key: client-secret
+{{- end }}

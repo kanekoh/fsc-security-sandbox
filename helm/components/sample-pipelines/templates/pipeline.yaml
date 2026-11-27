@@ -1,0 +1,76 @@
+{{- if .Values.samplePipelines.enabled }}
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: sample-sign-verify
+  namespace: {{ .Values.samplePipelines.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    fsc.security/demo: sign-verify
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    description: |
+      1) Confirm a public image is unsigned.
+      2) Copy → key-sign → verify on ttl.sh (pipeline shape).
+      Replace step 2 with RHTAS keyless when Securesign + OIDC are available.
+spec:
+  params:
+    - name: unsigned-image
+      type: string
+      default: {{ .Values.samplePipelines.unsignedImage | quote }}
+    - name: scratch-image
+      type: string
+      default: "{{ .Values.samplePipelines.scratchImageRepo }}/demo:{{ .Values.samplePipelines.scratchImageTag }}"
+    - name: cosign-image
+      type: string
+      default: {{ .Values.samplePipelines.cosignImage | quote }}
+    - name: skopeo-image
+      type: string
+      default: {{ .Values.samplePipelines.skopeoImage | quote }}
+  tasks:
+    - name: expect-unsigned
+      taskRef:
+        name: cosign-expect-unsigned
+      params:
+        - name: image
+          value: $(params.unsigned-image)
+        - name: cosign-image
+          value: $(params.cosign-image)
+    - name: key-sign-verify
+      runAfter: [expect-unsigned]
+      taskRef:
+        name: cosign-key-sign-verify
+      params:
+        - name: image
+          value: $(params.scratch-image)
+        - name: source-image
+          value: $(params.unsigned-image)
+        - name: cosign-image
+          value: $(params.cosign-image)
+        - name: skopeo-image
+          value: $(params.skopeo-image)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sample-sign-verify-howto
+  namespace: {{ .Values.samplePipelines.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+data:
+  README: |
+    Run (after OpenShift Pipelines is Ready):
+
+      oc -n {{ .Values.samplePipelines.namespace }} create pipelinerun sample-sign-verify-run \
+        --from=pipeline/sample-sign-verify
+
+    Or:
+
+      tkn -n {{ .Values.samplePipelines.namespace }} pipeline start sample-sign-verify --showlog
+
+    RHTAS keyless (after Securesign + OIDC):
+      export TUF_URL=$(oc get tuf -n trusted-artifact-signer -o jsonpath='{.items[0].status.url}')
+      cosign initialize --mirror "$TUF_URL" --root "$TUF_URL/1.root.json"
+      cosign sign --oidc-client-id trusted-artifact-signer <image>
+    See: https://docs.redhat.com/en/documentation/red_hat_trusted_artifact_signer/
+{{- end }}

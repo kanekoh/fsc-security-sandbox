@@ -1,2 +1,28 @@
-# Skeleton — implement session fills real manifests.
-enabled: true
+rhtpaInstance:
+  enabled: true
+  namespace: trusted-profile-analyzer
+  # Official Operator path still needs OIDC + object storage + Postgres secrets in the CR.
+  # deps=true deploys in-cluster Postgres + MinIO and a bootstrap Job that creates Secrets
+  # (never stored in Git). createCR stays false until OIDC client secrets exist.
+  deps:
+    enabled: true
+  createCR: false
+  name: trustedprofileanalyzer
+  postgres:
+    image: registry.redhat.io/rhel9/postgresql-15:latest
+    pvcSize: 20Gi
+    storageClass: ""
+  minio:
+    # S3-compatible stand-in when ODF is unavailable (demo only).
+    image: quay.io/minio/minio:RELEASE.2024-12-18T13-15-44Z
+    pvcSize: 20Gi
+    bucket: trustify-demo
+  # Filled when createCR=true and deployer.domain is set by FSC.
+  # appDomain becomes "-trusted-profile-analyzer.<appsDomain>"
+  oidc:
+    issuerUrl: ""
+    frontendClientId: ""
+    cliClientId: ""
+
+deployer:
+  domain: ""

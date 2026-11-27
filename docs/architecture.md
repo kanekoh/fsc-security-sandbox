@@ -45,10 +45,12 @@ Order is enforced with Argo CD sync-waves. CRS material stays in cluster Secrets
 | Component | Notes |
 |---|---|
 | RHTAS instance | Requires an OIDC provider (see product docs) |
-| RHTPA instance | Requires OIDC, PostgreSQL (or RDS), and object storage (ODF or S3) |
+| RHTPA deps | In-cluster Postgres + MinIO Secrets via bootstrap Job (`createCR` still off until OIDC) |
+| RHTPA CR | Official Operator path needs OIDC + storage + DB (Deployment Guide 3.1) |
 | RHDH instance | Requires authentication configuration |
+| Sample Pipelines | `security-sandbox-pipelines`: unsigned check + key-based sign/verify shape |
 
-Operators may install before those dependencies exist; instances remain disabled in `helm/values.yaml` until ready.
+Operators may install before OIDC exists. RHACS Central keeps a **passthrough** Route for Sensor and adds a **reencrypt** Route for the UI (OpenShift router certificate). Edge termination is not supported for Central (KCS 7019861).
 
 ## Layout
 

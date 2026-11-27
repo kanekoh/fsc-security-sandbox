@@ -421,3 +421,39 @@ spec:
     syncOptions:
       - CreateNamespace=true
 {{- end }}
+
+{{- if .Values.components.samplePipelines.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-sample-pipelines
+  namespace: {{ $argoNs }}
+  labels:
+    demo.redhat.com/application: "field-content"
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.components.samplePipelines.syncWave | quote }}
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ $project }}
+  source:
+    repoURL: {{ $repo }}
+    targetRevision: {{ $rev }}
+    path: {{ $base }}/components/sample-pipelines
+    helm:
+      valuesObject:
+        samplePipelines: {{ .Values.components.samplePipelines | toYaml | nindent 10 }}
+        deployer:
+          domain: {{ .Values.deployer.domain | quote }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.components.samplePipelines.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}

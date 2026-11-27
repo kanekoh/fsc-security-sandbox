@@ -33,6 +33,8 @@ components:
     name: stackrox-central-services
     namespace: stackrox
     syncWave: "1"
+    route:
+      reencryptEnabled: true
 
   rhacsCrsJob:
     enabled: true
@@ -80,9 +82,17 @@ components:
     syncWave: "20"
 
   rhtpaInstance:
-    enabled: false  # needs OIDC + DB + object storage
+    # deps (Postgres+MinIO) on; TrustedProfileAnalyzer CR waits for OIDC
+    enabled: true
     namespace: trusted-profile-analyzer
     syncWave: "21"
+    deps:
+      enabled: true
+    createCR: false
+    oidc:
+      issuerUrl: ""
+      frontendClientId: ""
+      cliClientId: ""
 
   # --- RHDH ---
   rhdhOperator:
@@ -123,6 +133,11 @@ components:
       enabled: true
     policyViolatingApp:
       enabled: true
+
+  samplePipelines:
+    enabled: true
+    namespace: security-sandbox-pipelines
+    syncWave: "51"
 
 # Injected by FSC — leave empty in Git
 deployer:

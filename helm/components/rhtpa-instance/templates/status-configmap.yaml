@@ -1,0 +1,23 @@
+{{- if .Values.rhtpaInstance.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rhtpa-instance-status
+  namespace: {{ .Values.rhtpaInstance.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    app.kubernetes.io/component: rhtpa-instance
+    demo.redhat.com/application: "field-content"
+data:
+  deps: {{ .Values.rhtpaInstance.deps.enabled | quote }}
+  createCR: {{ .Values.rhtpaInstance.createCR | quote }}
+  status: |
+    {{- if .Values.rhtpaInstance.createCR }}
+    TrustedProfileAnalyzer CR enabled — requires OIDC + storage + DB Secrets.
+    {{- else if .Values.rhtpaInstance.deps.enabled }}
+    Dependencies (Postgres + MinIO) deploying. OIDC is still required before createCR=true.
+    Official: https://docs.redhat.com/en/documentation/red_hat_trusted_profile_analyzer/3.1/html/deployment_guide/installing-trusted-profile-analyzer-using-the-operator-lifecycle-manager_deploy
+    {{- else }}
+    Deferred — enable deps / createCR in values after OIDC is ready.
+    {{- end }}
+{{- end }}

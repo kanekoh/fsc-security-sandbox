@@ -15,7 +15,13 @@ spec:
   central:
     exposure:
       route:
+        # Keep Operator passthrough route for Sensor/gRPC (default).
+        # Add reencrypt for browser UI so the OpenShift router cert is used.
+        # Edge is not supported: Central expects TLS from the client (KCS 7019861).
+        # Official: central.exposure.route.reencrypt.enabled
         enabled: true
+        reencrypt:
+          enabled: {{ ((.Values.rhacsCentral.route | default dict).reencryptEnabled | default true) }}
     resources:
       requests:
         cpu: {{ .Values.rhacsCentral.central.cpuRequest | quote }}

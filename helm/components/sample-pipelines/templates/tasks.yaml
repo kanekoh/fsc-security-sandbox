@@ -1,0 +1,98 @@
+{{- if .Values.samplePipelines.enabled }}
+# Task 1: show that an unsigned public image has no Sigstore signature.
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: cosign-expect-unsigned
+  namespace: {{ .Values.samplePipelines.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    fsc.security/demo: unsigned-check
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  params:
+    - name: image
+      type: string
+      description: Image reference expected to lack a Sigstore signature
+    - name: cosign-image
+      type: string
+      default: {{ .Values.samplePipelines.cosignImage | quote }}
+  steps:
+    - name: verify-should-fail
+      image: $(params.cosign-image)
+      env:
+        - name: COSIGN_YES
+          value: "true"
+      script: |
+        #!/bin/sh
+        set -eu
+        echo "=== Expect UNSIGNED: cosign verify should fail for $(params.image) ==="
+        if cosign verify \
+          --certificate-identity-regexp '.*' \
+          --certificate-oidc-issuer-regexp '.*' \
+          "$(params.image)"; then
+          echo "ERROR: unexpected successful verify on unsigned image" >&2
+          exit 1
+        fi
+        echo "OK: no usable signature found (demo baseline for RHTAS signing)."
+---
+# Task 2: skopeo copy + key-based cosign sign/verify (self-contained).
+# RHTAS keyless (Fulcio/OIDC) replaces the key steps after Securesign is enabled.
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: cosign-key-sign-verify
+  namespace: {{ .Values.samplePipelines.namespace }}
+  labels:
+    app.kubernetes.io/part-of: fsc-security-sandbox
+    fsc.security/demo: key-sign
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  params:
+    - name: image
+      type: string
+      description: Mutable image ref (e.g. ttl.sh/...:1h) to copy, sign, and verify
+    - name: source-image
+      type: string
+      description: Public source image to copy into the mutable ref
+      default: {{ .Values.samplePipelines.unsignedImage | quote }}
+    - name: cosign-image
+      type: string
+      default: {{ .Values.samplePipelines.cosignImage | quote }}
+    - name: skopeo-image
+      type: string
+      default: {{ .Values.samplePipelines.skopeoImage | quote }}
+  steps:
+    - name: copy-image
+      image: $(params.skopeo-image)
+      script: |
+        #!/bin/sh
+        set -eu
+        echo "=== skopeo copy docker://$(params.source-image) -> docker://$(params.image) ==="
+        skopeo copy --quiet \
+          "docker://$(params.source-image)" \
+          "docker://$(params.image)"
+    - name: sign-verify
+      image: $(params.cosign-image)
+      env:
+        - name: COSIGN_YES
+          value: "true"
+        - name: COSIGN_PASSWORD
+          value: "demo"
+      script: |
+        #!/bin/sh
+        set -eu
+        WORK=/workspace/cosign-demo
+        mkdir -p "${WORK}"
+        cd "${WORK}"
+        echo "=== Generate ephemeral signing key (demo only; not RHTAS keyless) ==="
+        cosign generate-key-pair
+        echo "=== Sign $(params.image) ==="
+        cosign sign --key cosign.key "$(params.image)"
+        echo "=== Verify ==="
+        cosign verify --key cosign.pub "$(params.image)"
+        echo "OK: key-based sign/verify succeeded."
+        echo "Next (product path): enable RHTAS Securesign + OIDC, then cosign sign without --key (Fulcio)."
+{{- end }}

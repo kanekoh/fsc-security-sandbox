@@ -3,10 +3,12 @@
 No Showroom. Use the OpenShift console and product UIs.
 
 1. Wait for RHDP **Running** and Argo CD **Synced / Healthy**  
-2. **RHACS** — Central login, vulnerabilities, policies, sample workloads  
-3. **RHTAS** — when the instance is enabled (signing / verification)  
-4. **RHTPA** — when the instance is enabled (SBOM upload / risk views)  
-5. **RHDH** — when the instance is enabled (portal / catalog)  
-6. **Pipelines** — optional short runs for signing or SBOM demos  
+2. **RHACS** — use the **reencrypt** Central Route (OpenShift cert) for browser login; sample workloads in `security-sandbox-demos`  
+3. **Pipelines** — run `sample-sign-verify` in `security-sandbox-pipelines` (unsigned baseline + key-based sign/verify)  
+4. **RHTAS** — when Securesign + OIDC are enabled (replace key-based step with Fulcio keyless)  
+5. **RHTPA** — when `createCR` is enabled after OIDC (deps may already be running)  
+6. **RHDH** — when the instance is enabled (portal / catalog)  
 
-Sample workloads live in namespace `security-sandbox-demos`.
+```bash
+tkn -n security-sandbox-pipelines pipeline start sample-sign-verify --showlog
+```
